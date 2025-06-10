@@ -3,7 +3,6 @@ local players = findservice(Game, 'Players')
 local workspace = findservice(Game, 'Workspace')
  
 --// variables
-local drops = findfirstchild(findfirstchild(findfirstchild(workspace, 'world_assets'), 'StaticObjects'), 'Misc')
 local camera = findfirstchild(workspace, 'Camera')
 local zombies = findfirstchild(findfirstchild(workspace, 'game_assets'), 'NPCs')
 local characters = findfirstchild(workspace, 'Characters')
@@ -246,6 +245,75 @@ local function setup_cache()
             end
         end
 
+        for _, vehicle in getchildren(workspace) do
+            if getname(vehicle) == 'WorldModel' then
+                local vehicle_string = tostring(vehicle)
+                if not cache[vehicle_string] then
+                    local chassis = findfirstchild(vehicle, 'Chassis')
+                    if chassis then
+                        cache[vehicle_string] = {
+                            class = 'vehicle',
+                            chassis = chassis
+                        }
+
+                        local data = {
+                            Username = 'Vehicle',
+                            Displayname = 'Vehicle',
+                            Userid = 0,
+                            Character = chassis,
+                            PrimaryPart = chassis,
+                            Humanoid = chassis,
+                            Head = chassis,
+                            Torso = chassis,
+                            LeftArm = chassis,
+                            LeftLeg = chassis,
+                            RightArm = chassis,
+                            RightLeg = chassis,
+                            BodyHeightScale = 1,
+                            RigType = 0,
+                            Whitelisted = false,
+                            Archenemies = false,
+                            Aimbot_Part = chassis,
+                            Aimbot_TP_Part = chassis,
+                            Triggerbot_Part = chassis,
+                            Health = 100,
+                            MaxHealth = 100,
+                            body_parts_data = {
+                                {name = "LowerTorso", part = chassis},
+                                {name = "LeftUpperArm", part = chassis},
+                                {name = "LeftLowerArm", part = chassis},
+                                {name = "RightUpperArm", part = chassis},
+                                {name = "RightLowerArm", part = chassis},
+                                {name = "LeftUpperLeg", part = chassis},
+                                {name = "LeftLowerLeg", part = chassis},
+                                {name = "RightUpperLeg", part = chassis},
+                                {name = "RightLowerLeg", part = chassis}
+                            },
+                            full_body_data = {
+                                {name = 'Head', part = chassis},
+                                {name = "UpperTorso", part = chassis},
+                                {name = "LowerTorso", part = chassis},
+                                {name = "LeftUpperArm", part = chassis},
+                                {name = "LeftLowerArm", part = chassis},
+                                {name = "LeftHand", part = chassis},
+                                {name = "RightUpperArm", part = chassis},
+                                {name = "RightLowerArm", part = chassis},
+                                {name = "RightHand", part = chassis},
+                                {name = "LeftUpperLeg", part = chassis},
+                                {name = "LeftLowerLeg", part = chassis},
+                                {name = "LeftFoot", part = chassis},
+                                {name = "RightUpperLeg", part = chassis},
+                                {name = "RightLowerLeg", part = chassis},
+                                {name = "RightFoot", part = chassis}
+                            }
+                        }
+                        
+                        add_model_data(data, vehicle_string)
+                    end
+                end
+            end
+        end
+
         closest_to_camera = closest
         table.clear(all_players)
     end
@@ -267,6 +335,13 @@ local function updater()
                 local primary = entry.primary
                 local rootpart = entry.rootpart
                 if (primary == closest_to_camera) or (not rootpart) or (not isdescendantof(primary, workspace)) then
+                    remove_model_data(index)
+                    cache[index] = nil
+                    continue
+                end
+            elseif class == 'vehicle' then
+                local chassis = entry.chassis
+                if not isdescendantof(chassis, workspace) then
                     remove_model_data(index)
                     cache[index] = nil
                     continue
