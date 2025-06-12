@@ -298,6 +298,7 @@ local function add_player(character)
     if root_part then
         local name = get_real_name(root_part)
         if name ~= 'Player' then
+            print(name)
             local parts = {
                 head = findfirstchild(character, 'Head'),
                 upper_torso = findfirstchild(character, 'UpperTorso'),
@@ -547,7 +548,7 @@ local function update()
         for index, player in cache.players do
             local character = player.character
             local root_part = player.root_part
-            if not character ~= local_character or not root_part or not isdescendantof(root_part, characters) then
+            if character == local_character or not root_part or not isdescendantof(root_part, characters) then
                 cache.players[index] = nil
                 remove_model_data(index)
             end
