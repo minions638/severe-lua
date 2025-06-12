@@ -764,6 +764,10 @@ local function add_drop(drop)
             }
             return
         end
+
+        cache.drops[drop_string] = {
+            drop = drop
+        }
     end
 end
 
@@ -1108,6 +1112,13 @@ local function update()
 
         for index, drop in cache.drops do
             local real = drop.drop
+            if drop.fake then
+                if not isdescendantof(real, workspace) then
+                    cache.drops[index] = nil
+                    continue
+                end
+            end
+
             if real then
                 if not isdescendantof(real, workspace) then
                     remove_model_data(index)
