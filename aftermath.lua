@@ -215,7 +215,7 @@ local function add_drop(drop)
 
         local RenelliM4 = findfirstchild(drop, 'Shotgun')
         if RenelliM4 then
-            add_item_data(drop_string, part, 'RenelliM4')
+            add_item_data(drop_string, part, 'Renelli M4')
             cache.drops[drop_string] = {
                 drop = drop
             }
@@ -250,7 +250,7 @@ local function add_drop(drop)
         if DesertEagleGold then
             local SurfaceAppearance = findfirstchild(DesertEagleGold, 'SurfaceAppearance')
             if SurfaceAppearance then
-                add_item_data(drop_string, part, 'DesertEagleGold')
+                add_item_data(drop_string, part, 'Gold Desert Eagle')
                 cache.drops[drop_string] = {
                     drop = drop
                 }
@@ -432,16 +432,13 @@ local function add_drop(drop)
             return
         end
 
-        local DoubleBarrelShotgunShort = findfirstchild(drop, 'Meshes')
-        if DoubleBarrelShotgunShort then
-            local Stock = findfirstchild(DoubleBarrelShotgunShort, 'DoubleBarrelSawedOff_stock_low')
-            if Stock then
-                add_item_data(drop_string, part, 'DoubleBarrelShotgunShort')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
+        local SawedOff = findfirstchild(drop, 'Meshes/DoubleBarrelSawedOff_stock_low')
+        if SawedOff then
+            add_item_data(drop_string, part, 'Sawed Off')
+            cache.drops[drop_string] = {
+                drop = drop
+            }
+            return
         end
 
         local PKM = findfirstchild(drop, 'Static')
@@ -456,7 +453,7 @@ local function add_drop(drop)
             end
         end
 
-        local M40A1 = findfirstchild(drop, 'Suppressor')
+        local M40A1 = findfirstchild(drop, 'Supressor')
         if M40A1 then
             add_item_data(drop_string, part, 'M40A1')
             cache.drops[drop_string] = {
@@ -477,16 +474,13 @@ local function add_drop(drop)
             end
         end
 
-        local Famas = findfirstchild(drop, 'Meshes')
+        local Famas = findfirstchild(drop, 'Meshes/Famas_FamasRBX.001')
         if Famas then
-            local Mesh = findfirstchild(Famas, 'Famas_FamasRBX.007')
-            if Mesh then
-                add_item_data(drop_string, part, 'Famas')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
+            add_item_data(drop_string, part, 'Famas')
+            cache.drops[drop_string] = {
+                drop = drop
+            }
+            return
         end
 
         local Saiga = findfirstchild(drop, 'Static')
@@ -529,7 +523,7 @@ local function add_drop(drop)
         if BowAndArrowRecurve then
             local Bow2 = findfirstchild(BowAndArrowRecurve, 'Bow')
             if Bow2 then
-                add_item_data(drop_string, part, 'BowAndArrowRecurve')
+                add_item_data(drop_string, part, 'Bow Recurve')
                 cache.drops[drop_string] = {
                     drop = drop
                 }
@@ -566,29 +560,11 @@ local function add_drop(drop)
 
         local DesertEagle = findfirstchild(drop, 'Static')
         if DesertEagle then
-            local Meshes = findfirstchild(DesertEagle, 'Meshes')
-            if Meshes then
-                local Body = findfirstchild(Meshes, 'DesertEagle_Body')
-                if Body then
-                    local SKIN01 = findfirstchild(Body, 'SKIN01')
-                    if SKIN01 then
-                        add_item_data(drop_string, part, 'DesertEagle')
-                        cache.drops[drop_string] = {
-                            drop = drop
-                        }
-                        return
-                    end
-                end
-            end
-        end
-
-        local AK47 = findfirstchild(drop, 'Misc')
-        if AK47 then
-            local Meshes = findfirstchild(AK47, 'Meshes')
-            if Meshes then
-                local Grip = findfirstchild(Meshes, 'AK_Grip')
-                if Grip then
-                    add_item_data(drop_string, part, 'AK47')
+            local Body = findfirstchild(DesertEagle, 'Meshes/DesertEagle_Body')
+            if Body then
+                local SKIN01 = findfirstchild(Body, 'SKIN01')
+                if SKIN01 then
+                    add_item_data(drop_string, part, 'Desert Eagle')
                     cache.drops[drop_string] = {
                         drop = drop
                     }
@@ -597,9 +573,21 @@ local function add_drop(drop)
             end
         end
 
+        local AK47 = findfirstchild(drop, 'Misc')
+        if AK47 then
+            local Grip = findfirstchild(AK47, 'Meshes/AK_Grip')
+            if Grip then
+                add_item_data(drop_string, part, 'AK47')
+                cache.drops[drop_string] = {
+                    drop = drop
+                }
+                return
+            end
+        end
+
         local DoubleBarrelShotgun = findfirstchild(drop, 'Barrels')
         if DoubleBarrelShotgun then
-            add_item_data(drop_string, part, 'DoubleBarrelShotgun')
+            add_item_data(drop_string, part, 'Double Barrel Shotgun')
             cache.drops[drop_string] = {
                 drop = drop
             }
@@ -629,7 +617,7 @@ local function add_drop(drop)
 
         local MosinNagant = findfirstchild(drop, 'BoltBody')
         if MosinNagant then
-            add_item_data(drop_string, part, 'MosinNagant')
+            add_item_data(drop_string, part, 'Mosin Nagant')
             cache.drops[drop_string] = {
                 drop = drop
             }
@@ -655,7 +643,7 @@ local function add_drop(drop)
         if BowAndArrow then
             local bow_mid = findfirstchild(BowAndArrow, 'bow_mid')
             if bow_mid then
-                add_item_data(drop_string, part, 'BowAndArrow')
+                add_item_data(drop_string, part, 'Bow')
                 cache.drops[drop_string] = {
                     drop = drop
                 }
@@ -677,7 +665,7 @@ local function add_drop(drop)
 
         local HuntingRifle = findfirstchild(drop, 'BoltVisible')
         if HuntingRifle then
-            add_item_data(drop_string, part, 'HuntingRifle')
+            add_item_data(drop_string, part, 'Hunting Rifle')
             cache.drops[drop_string] = {
                 drop = drop
             }
@@ -686,16 +674,13 @@ local function add_drop(drop)
 
         local P226 = findfirstchild(drop, 'Static')
         if P226 then
-            local Meshes = findfirstchild(P226, 'Meshes')
-            if Meshes then
-                local Button1 = findfirstchild(Meshes, 'SigSaur_Button1')
-                if Button1 then
-                    add_item_data(drop_string, part, 'P226')
-                    cache.drops[drop_string] = {
-                        drop = drop
-                    }
-                    return
-                end
+            local Button1 = findfirstchild(P226, 'Meshes/SigSaur_Button1')
+            if Button1 then
+                add_item_data(drop_string, part, 'P226')
+                cache.drops[drop_string] = {
+                    drop = drop
+                }
+                return
             end
         end
 
@@ -725,16 +710,13 @@ local function add_drop(drop)
 
         local Mossberg = findfirstchild(drop, 'Static')
         if Mossberg then
-            local Meshes = findfirstchild(Mossberg, 'Meshes')
-            if Meshes then
-                local Moss = findfirstchild(Meshes, 'SM_Mossberg590A1_LP (1)')
-                if Moss then
-                    add_item_data(drop_string, part, 'Mossberg')
-                    cache.drops[drop_string] = {
-                        drop = drop
-                    }
-                    return
-                end
+            local Moss = findfirstchild(Mossberg, 'Meshes/SM_Mossberg590A1_LP (1)')
+            if Moss then
+                add_item_data(drop_string, part, 'Mossberg')
+                cache.drops[drop_string] = {
+                    drop = drop
+                }
+                return
             end
         end
 
