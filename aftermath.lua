@@ -64,6 +64,66 @@ local characters = findfirstchild(workspace, 'Characters')
 local local_player = getlocalplayer()
 local local_character = nil
 
+local paths = {
+    {name = 'Glock', path = {'Handle2', 'Slide'}},
+    {name = 'M1911', path = {'Bullet', 'SKIN01'}},
+    {name = 'Makarov', path = {'Static', 'Mag'}},
+    {name = 'Desert Eagle', path = {'Static', 'Meshes/DesertEagle_Body', 'SKIN01'}},
+    {name = 'Gold Desert Eagle', path = {'Slide', 'SurfaceAppearance'}},
+    {name = 'FNX-45', path = {'Static', 'Barrel'}},
+    {name = 'S&W .44 Magnum', path = {'Loader'}},
+    {name = 'P226', path = {'Static', 'Meshes/SigSaur_Button1'}},
+    {name = 'M9', path = {'Mag', 'SKIN02'}},
+    {name = 'MK4', path = {'Handle', 'Safety'}},
+    {name = 'TEC9', path = {'MovingParts', '9mm', 'Part6'}},
+
+    {name = 'Uzi', path = {'Static', 'Meshes', 'uzi_better_as_fbx_uzi.001'}},
+    {name = 'MP5', path = {'ChargingHandle', 'MP51'}},
+    {name = 'P90', path = {'SlideDraw'}},
+    {name = 'UMP45', path = {'Gun'}},
+    {name = 'Makeshift SMG', path = {'Gas'}},
+
+    {name = 'AR-15', path = {'Bullets', 'Weld'}},
+    {name = 'M4A1', path = {'Mag', 'MagVisible', 'Weld'}},
+    {name = 'AKM', path = {'Mount'}},
+    {name = 'AK-47', path = {'Misc', 'Meshes/AK_Grip'}},
+    {name = 'FN-FAL', path = {'Misc', 'Fal'}},
+    {name = 'SCAR-H', path = {'Static', 'Scar'}},
+    {name = 'MK-18', path = {'Body3'}},
+    {name = 'MK-14 EBR', path = {'Body5'}},
+    {name = 'MK-47 Mutant', path = {'MK473'}},
+    {name = 'Famas', path = {'Meshes/Famas_FamasRBX.001'}},
+    {name = 'G36k', path = {'hkey_lp001'}},
+
+    {name = 'M110k', path = {'Static', 'Sights'}},
+    {name = 'MRAD', path = {'Bolt', 'Bolt'}},
+    {name = 'AWM', path = {'Stand'}},
+    {name = 'M82A1', path = {'pad_low'}},
+    {name = 'SVD', path = {'MagBullet'}},
+    {name = 'Mosin Nagant', path = {'BoltBody'}},
+    {name = 'M40A1', path = {'Supressor'}},
+    {name = 'Remington 700', path = {'BoltVisible'}},
+    {name = 'Makeshift Sniper', path = {'Fabric'}},
+
+    {name = 'Renelli M4', path = {'Shotgun'}},
+    {name = 'MP-133', path = {'Primary Frame', 'Base'}},
+    {name = 'Sawed Off', path = {'Meshes/DoubleBarrelSawedOff_stock_low'}},
+    {name = 'Remington 1894', path = {'Barrels'}},
+    {name = 'Mossberg 500', path = {'Static', 'Meshes/SM_Mossberg590A1_LP (1)'}},
+    {name = 'SPAS-12', path = {'AttachmentReticle', 'RED DOT'}},
+    {name = 'Saiga-12', path = {'Static', 'SaigaSP'}},
+
+    {name = 'M249', path = {'Mag', 'MagHandle'}},
+    {name = 'PKM', path = {'Static', 'Grip'}},
+
+    {name = 'Makeshift Bow', path = {'Bow', 'bow_mid'}},
+    {name = 'Recurve Bow', path = {'Bow', 'Bow'}},
+    {name = 'T13 Crossbow', path = {'Arrow'}},
+    {name = '10/22 Takedown', path = {'GunParts'}},
+
+    {name = 'Wrench', path = {'Wrench'}}
+}
+
 local cache = {
     drops = {},
     players = {},
@@ -75,11 +135,11 @@ local cache = {
 
 local meshes = {
     ['rbxassetid://10058182223'] = 'Weapon Repair Kit',
-    ['rbxassetid://8838686715'] = '.223 Rem',
+    ['rbxassetid://8838686715'] = 'Rem .223',
     ['rbxassetid://16828714196'] = '.22 LR',
     ['rbxassetid://7951764278'] = '.308 Win',
     ['rbxassetid://6068549937'] = '.44 Magnum',
-    ['rbxassetid://6068551481'] = '9mm Para',
+    ['rbxassetid://6068551481'] = '9MM Pa.',
     ['rbxassetid://6068551083'] = '.45 ACP',
     ['rbxassetid://6068551303'] = '12 Gauge',
     ['rbxassetid://8905916965'] = '.50 BMG',
@@ -168,594 +228,69 @@ local function add_drop(drop)
                 if name then
                     if name ~= 'Weapon Repair Kit' then
                         if flags['items_ammo'] then
-                            add_item_data(drop_string, main, name)
                             cache.drops[drop_string] = {
                                 drop = drop,
                                 class = 'ammo'
                             }
+                            add_item_data(drop_string, main, name)
                         end
                     elseif flags['items_repair_kits'] then
-                        add_item_data(drop_string, main, name)
                         cache.drops[drop_string] = {
                             drop = drop,
                             class = 'repair_kit'
                         }
+                        add_item_data(drop_string, main, name)
                     end
                     return
                 end
             end
         end
 
-        if not flags['items_weapons'] then
-            return
-        end
-
-        local Wrench = findfirstchild(drop, 'Wrench')
-        if Wrench then
-            add_item_data(drop_string, Wrench, 'Wrench')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local part = findfirstchildofclass(drop, 'Part') or findfirstchildofclass(drop, 'MeshPart')
-        if not part then
-            return
-        end
-
-        local Barret50 = findfirstchild(drop, 'pad_low')
-        if Barret50 then
-            add_item_data(drop_string, part, 'Barret50')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local RenelliM4 = findfirstchild(drop, 'Shotgun')
-        if RenelliM4 then
-            add_item_data(drop_string, part, 'Renelli M4')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local Makarov = findfirstchild(drop, 'Static')
-        if Makarov then
-            local Mag = findfirstchild(Makarov, 'Mag')
-            if Mag then
-                add_item_data(drop_string, part, 'Makarov')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
+        if flags['items_weapons'] then
+            local part = findfirstchildofclass(drop, 'Part') or findfirstchildofclass(drop, 'MeshPart')
+            if not part then
                 return
             end
-        end
 
-        local AR15 = findfirstchild(drop, 'Bullets')
-        if AR15 then
-            local Weld = findfirstchild(AR15, 'Weld')
-            if Weld then
-                add_item_data(drop_string, part, 'AR15')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
+            for _, weapon in paths do
+                local path = weapon.path
+                local depth = drop
 
-        local DesertEagleGold = findfirstchild(drop, 'Slide')
-        if DesertEagleGold then
-            local SurfaceAppearance = findfirstchild(DesertEagleGold, 'SurfaceAppearance')
-            if SurfaceAppearance then
-                add_item_data(drop_string, part, 'Gold Desert Eagle')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
+                for _, child in path do
+                    local found = findfirstchild(depth, child)
+                    if found then
+                        depth = found
+                    else
+                        break
+                    end
+                end
 
-        local MK18 = findfirstchild(drop, 'Body3')
-        if MK18 then
-            add_item_data(drop_string, part, 'MK18')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local SVD = findfirstchild(drop, 'MagBullet')
-        if SVD then
-            add_item_data(drop_string, part, 'SVD')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local SKS = findfirstchild(drop, 'bolt')
-        if SKS then
-            add_item_data(drop_string, part, 'SKS')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local M110K = findfirstchild(drop, 'Static')
-        if M110K then
-            local Sights = findfirstchild(M110K, 'Sights')
-            if Sights then
-                add_item_data(drop_string, part, 'M110K')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local AWM = findfirstchild(drop, 'Stand')
-        if AWM then
-            add_item_data(drop_string, part, 'AWM')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local M4A1 = findfirstchild(drop, 'Mag')
-        if M4A1 then
-            local MagVisible = findfirstchild(M4A1, 'MagVisible')
-            if MagVisible then
-                local Weld = findfirstchild(MagVisible, 'Weld')
-                if Weld then
-                    add_item_data(drop_string, part, 'M4A1')
+                if depth ~= drop then
+                    if getname(depth) == path[#path] then
+                        cache.drops[drop_string] = {
+                            drop = drop
+                        }
+                        add_item_data(drop_string, part, weapon.name)
+                        return
+                    end
+                else
                     cache.drops[drop_string] = {
+                        fake = true,
                         drop = drop
                     }
-                    return
                 end
             end
-        end
-
-        local MRAD = findfirstchild(drop, 'Bolt')
-        if MRAD then
-            local Bolt = findfirstchild(MRAD, 'Bolt')
-            if Bolt then
-                add_item_data(drop_string, part, 'MRAD')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local M249 = findfirstchild(drop, 'Mag')
-        if M249 then
-            local MagHandle = findfirstchild(M249, 'MagHandle')
-            if MagHandle then
-                add_item_data(drop_string, part, 'M249')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local Glock = findfirstchild(drop, 'Handle2')
-        if Glock then
-            local Slide = findfirstchild(Glock, 'Slide')
-            if Slide then
-                add_item_data(drop_string, part, 'Glock')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local FNX45 = findfirstchild(drop, 'Static')
-        if FNX45 then
-            local Barrel = findfirstchild(FNX45, 'Barrel')
-            if Barrel then
-                add_item_data(drop_string, part, 'FNX45')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local AKM = findfirstchild(drop, 'Mount')
-        if AKM then
-            add_item_data(drop_string, part, 'AKM')
+        else
             cache.drops[drop_string] = {
+                fake = true,
                 drop = drop
             }
-            return
         end
-
-        local MK47 = findfirstchild(drop, 'MK473')
-        if MK47 then
-            add_item_data(drop_string, part, 'MK47')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local Scrap_SMG = findfirstchild(drop, 'Gas')
-        if Scrap_SMG then
-            add_item_data(drop_string, part, 'Scrap SMG')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local UZI = findfirstchild(drop, 'Static')
-        if UZI then
-            local Meshes = findfirstchild(UZI, 'Meshes')
-            if Meshes then
-                local uziPart = findfirstchild(Meshes, 'uzi_better_as_fbx_uzi.001')
-                if uziPart then
-                    add_item_data(drop_string, part, 'UZI')
-                    cache.drops[drop_string] = {
-                        drop = drop
-                    }
-                    return
-                end
-            end
-        end
-
-        local SCAR = findfirstchild(drop, 'Static')
-        if SCAR then
-            local Scar = findfirstchild(SCAR, 'Scar')
-            if Scar then
-                add_item_data(drop_string, part, 'SCAR')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local RevolverNew = findfirstchild(drop, 'Loader')
-        if RevolverNew then
-            add_item_data(drop_string, part, 'Magnum')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local SawedOff = findfirstchild(drop, 'Meshes/DoubleBarrelSawedOff_stock_low')
-        if SawedOff then
-            add_item_data(drop_string, part, 'Sawed Off')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local PKM = findfirstchild(drop, 'Static')
-        if PKM then
-            local Grip = findfirstchild(PKM, 'Grip')
-            if Grip then
-                add_item_data(drop_string, part, 'PKM')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local M40A1 = findfirstchild(drop, 'Supressor')
-        if M40A1 then
-            add_item_data(drop_string, part, 'M40A1')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local MP5 = findfirstchild(drop, 'ChargingHandle')
-        if MP5 then
-            local MP51 = findfirstchild(MP5, 'MP51')
-            if MP51 then
-                add_item_data(drop_string, part, 'MP5')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local Famas = findfirstchild(drop, 'Meshes/Famas_FamasRBX.001')
-        if Famas then
-            add_item_data(drop_string, part, 'Famas')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local Saiga = findfirstchild(drop, 'Static')
-        if Saiga then
-            local SaigaSP = findfirstchild(Saiga, 'SaigaSP')
-            if SaigaSP then
-                add_item_data(drop_string, part, 'Saiga')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local M1911 = findfirstchild(drop, 'Bullet')
-        if M1911 then
-            local SKIN01 = findfirstchild(M1911, 'SKIN01')
-            if SKIN01 then
-                add_item_data(drop_string, part, 'M1911')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local FAL = findfirstchild(drop, 'Misc')
-        if FAL then
-            local Fal = findfirstchild(FAL, 'Fal')
-            if Fal then
-                add_item_data(drop_string, part, 'FAL')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local BowAndArrowRecurve = findfirstchild(drop, 'Bow')
-        if BowAndArrowRecurve then
-            local Bow2 = findfirstchild(BowAndArrowRecurve, 'Bow')
-            if Bow2 then
-                add_item_data(drop_string, part, 'Bow Recurve')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local Sporter = findfirstchild(drop, 'GunParts')
-        if Sporter then
-            add_item_data(drop_string, part, 'Sporter')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local Crossbow = findfirstchild(drop, 'Arrow')
-        if Crossbow then
-            add_item_data(drop_string, part, 'Crossbow')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local UMP45 = findfirstchild(drop, 'Gun')
-        if UMP45 then
-            add_item_data(drop_string, part, 'UMP45')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local DesertEagle = findfirstchild(drop, 'Static')
-        if DesertEagle then
-            local Body = findfirstchild(DesertEagle, 'Meshes/DesertEagle_Body')
-            if Body then
-                local SKIN01 = findfirstchild(Body, 'SKIN01')
-                if SKIN01 then
-                    add_item_data(drop_string, part, 'Desert Eagle')
-                    cache.drops[drop_string] = {
-                        drop = drop
-                    }
-                    return
-                end
-            end
-        end
-
-        local AK47 = findfirstchild(drop, 'Misc')
-        if AK47 then
-            local Grip = findfirstchild(AK47, 'Meshes/AK_Grip')
-            if Grip then
-                add_item_data(drop_string, part, 'AK47')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local DoubleBarrelShotgun = findfirstchild(drop, 'Barrels')
-        if DoubleBarrelShotgun then
-            add_item_data(drop_string, part, 'Double Barrel Shotgun')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local Shotgun = findfirstchild(drop, 'Primary Frame')
-        if Shotgun then
-            local Base = findfirstchild(Shotgun, 'Base')
-            if Base then
-                add_item_data(drop_string, part, 'Shotgun')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local MK14 = findfirstchild(drop, 'Body5')
-        if MK14 then
-            add_item_data(drop_string, part, 'MK14')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local MosinNagant = findfirstchild(drop, 'BoltBody')
-        if MosinNagant then
-            add_item_data(drop_string, part, 'Mosin Nagant')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local Tec9 = findfirstchild(drop, 'MovingParts')
-        if Tec9 then
-            local mm9 = findfirstchild(Tec9, '9mm')
-            if mm9 then
-                local Part6 = findfirstchild(mm9, 'Part6')
-                if Part6 then
-                    add_item_data(drop_string, part, 'Tec9')
-                    cache.drops[drop_string] = {
-                        drop = drop
-                    }
-                    return
-                end
-            end
-        end
-
-        local BowAndArrow = findfirstchild(drop, 'Bow')
-        if BowAndArrow then
-            local bow_mid = findfirstchild(BowAndArrow, 'bow_mid')
-            if bow_mid then
-                add_item_data(drop_string, part, 'Bow')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local SPAS12 = findfirstchild(drop, 'AttachmentReticle')
-        if SPAS12 then
-            local RedDot = findfirstchild(SPAS12, 'RED DOT')
-            if RedDot then
-                add_item_data(drop_string, part, 'SPAS12')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local HuntingRifle = findfirstchild(drop, 'BoltVisible')
-        if HuntingRifle then
-            add_item_data(drop_string, part, 'Hunting Rifle')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local P226 = findfirstchild(drop, 'Static')
-        if P226 then
-            local Button1 = findfirstchild(P226, 'Meshes/SigSaur_Button1')
-            if Button1 then
-                add_item_data(drop_string, part, 'P226')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local M9 = findfirstchild(drop, 'Mag')
-        if M9 then
-            local SKIN02 = findfirstchild(M9, 'SKIN02')
-            if SKIN02 then
-                add_item_data(drop_string, part, 'M9')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local MK4 = findfirstchild(drop, 'Handle')
-        if MK4 then
-            local Safety = findfirstchild(MK4, 'Safety')
-            if Safety then
-                add_item_data(drop_string, part, 'MK4')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local Mossberg = findfirstchild(drop, 'Static')
-        if Mossberg then
-            local Moss = findfirstchild(Mossberg, 'Meshes/SM_Mossberg590A1_LP (1)')
-            if Moss then
-                add_item_data(drop_string, part, 'Mossberg')
-                cache.drops[drop_string] = {
-                    drop = drop
-                }
-                return
-            end
-        end
-
-        local P90 = findfirstchild(drop, 'SlideDraw')
-        if P90 then
-            add_item_data(drop_string, part, 'P90')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local G36k = findfirstchild(drop, 'hkey_lp001')
-        if G36k then
-            add_item_data(drop_string, part, 'G36k')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        local Scrap_Sniper = findfirstchild(drop, 'Fabric')
-        if Scrap_Sniper then
-            add_item_data(drop_string, part, 'Scrap Sniper')
-            cache.drops[drop_string] = {
-                drop = drop
-            }
-            return
-        end
-
-        cache.drops[drop_string] = {
-            drop = drop
-        }
     end
 end
 
 local function add_player(character)
     local data = {
-        real_name = false,
         character = character
     }
 
@@ -763,85 +298,82 @@ local function add_player(character)
     if root_part then
         local name = get_real_name(root_part)
         if name ~= 'Player' then
-            data.real_name = true
-        end
-
-        local parts = {
-            head = findfirstchild(character, 'Head'),
-            upper_torso = findfirstchild(character, 'UpperTorso'),
-            lower_torso = findfirstchild(character, 'LowerTorso'),
-            left_upper_arm = findfirstchild(character, 'LeftUpperArm'),
-            left_lower_arm = findfirstchild(character, 'LeftLowerArm'),
-            left_hand = findfirstchild(character, 'LeftHand'),
-            right_upper_arm = findfirstchild(character, 'RightUpperArm'),
-            right_lower_arm = findfirstchild(character, 'RightLowerArm'),
-            right_hand = findfirstchild(character, 'RightHand'),
-            left_upper_leg = findfirstchild(character, 'LeftUpperLeg'),
-            left_lower_leg = findfirstchild(character, 'LeftLowerLeg'),
-            left_foot = findfirstchild(character, 'LeftFoot'),
-            right_upper_leg = findfirstchild(character, 'RightUpperLeg'),
-            right_lower_leg = findfirstchild(character, 'RightLowerLeg'),
-            right_foot = findfirstchild(character, 'RightFoot')
-        }
-
-        local model_data = {
-            Username = name,
-            Displayname = name,
-            Userid = 0,
-            Character = character,
-            PrimaryPart = root_part,
-            Humanoid = root_part,
-            Head = parts.head,
-            Torso = parts.upper_torso,
-            LeftArm = parts.left_upper_arm,
-            LeftLeg = parts.left_upper_leg,
-            RightArm = parts.right_upper_arm,
-            RightLeg = parts.right_upper_leg,
-            BodyHeightScale = 1,
-            RigType = 1,
-            Whitelisted = false,
-            Archenemies = false,
-            Aimbot_Part = parts.head,
-            Aimbot_TP_Part = parts.head,
-            Triggerbot_Part = parts.head,
-            Health = 100,
-            MaxHealth = 100,
-            body_parts_data = {
-                {name = "LowerTorso", part = parts.lower_torso},
-                {name = "LeftUpperArm", part = parts.left_upper_arm},
-                {name = "LeftLowerArm", part = parts.left_hand},
-                {name = "RightUpperArm", part = parts.right_upper_arm},
-                {name = "RightLowerArm", part = parts.right_hand},
-                {name = "LeftUpperLeg", part = parts.left_upper_leg},
-                {name = "LeftLowerLeg", part = parts.left_foot},
-                {name = "RightUpperLeg", part = parts.right_upper_leg},
-                {name = "RightLowerLeg", part = parts.right_foot}
-            },
-            full_body_data = {
-                {name = 'Head', part = parts.head},
-                {name = "UpperTorso", part = parts.upper_torso},
-                {name = "LowerTorso", part = parts.lower_torso},
-                {name = "LeftUpperArm", part = parts.left_upper_arm},
-                {name = "LeftLowerArm", part = parts.left_lower_arm},
-                {name = "LeftHand", part = parts.left_hand},
-                {name = "RightUpperArm", part = parts.right_upper_arm},
-                {name = "RightLowerArm", part = parts.right_lower_arm},
-                {name = "RightHand", part = parts.right_hand},
-                {name = "LeftUpperLeg", part = parts.left_upper_leg},
-                {name = "LeftLowerLeg", part = parts.left_lower_leg},
-                {name = "LeftFoot", part = parts.left_foot},
-                {name = "RightUpperLeg", part = parts.right_upper_leg},
-                {name = "RightLowerLeg", part = parts.right_lower_leg},
-                {name = "RightFoot", part = parts.right_foot}
+            local parts = {
+                head = findfirstchild(character, 'Head'),
+                upper_torso = findfirstchild(character, 'UpperTorso'),
+                lower_torso = findfirstchild(character, 'LowerTorso'),
+                left_upper_arm = findfirstchild(character, 'LeftUpperArm'),
+                left_lower_arm = findfirstchild(character, 'LeftLowerArm'),
+                left_hand = findfirstchild(character, 'LeftHand'),
+                right_upper_arm = findfirstchild(character, 'RightUpperArm'),
+                right_lower_arm = findfirstchild(character, 'RightLowerArm'),
+                right_hand = findfirstchild(character, 'RightHand'),
+                left_upper_leg = findfirstchild(character, 'LeftUpperLeg'),
+                left_lower_leg = findfirstchild(character, 'LeftLowerLeg'),
+                left_foot = findfirstchild(character, 'LeftFoot'),
+                right_upper_leg = findfirstchild(character, 'RightUpperLeg'),
+                right_lower_leg = findfirstchild(character, 'RightLowerLeg'),
+                right_foot = findfirstchild(character, 'RightFoot')
             }
-        }
-        
-        local address = tostring(character)
-        add_model_data(model_data, address)
 
-        data.parts = parts
-        data.root_part = root_part
-        cache.players[address] = data
+            local model_data = {
+                Username = name,
+                Displayname = name,
+                Userid = 0,
+                Character = character,
+                PrimaryPart = root_part,
+                Humanoid = root_part,
+                Head = parts.head,
+                Torso = parts.upper_torso,
+                LeftArm = parts.left_upper_arm,
+                LeftLeg = parts.left_upper_leg,
+                RightArm = parts.right_upper_arm,
+                RightLeg = parts.right_upper_leg,
+                BodyHeightScale = 1,
+                RigType = 1,
+                Whitelisted = false,
+                Archenemies = false,
+                Aimbot_Part = parts.head,
+                Aimbot_TP_Part = parts.head,
+                Triggerbot_Part = parts.head,
+                Health = 100,
+                MaxHealth = 100,
+                body_parts_data = {
+                    {name = "LowerTorso", part = parts.lower_torso},
+                    {name = "LeftUpperArm", part = parts.left_upper_arm},
+                    {name = "LeftLowerArm", part = parts.left_hand},
+                    {name = "RightUpperArm", part = parts.right_upper_arm},
+                    {name = "RightLowerArm", part = parts.right_hand},
+                    {name = "LeftUpperLeg", part = parts.left_upper_leg},
+                    {name = "LeftLowerLeg", part = parts.left_foot},
+                    {name = "RightUpperLeg", part = parts.right_upper_leg},
+                    {name = "RightLowerLeg", part = parts.right_foot}
+                },
+                full_body_data = {
+                    {name = 'Head', part = parts.head},
+                    {name = "UpperTorso", part = parts.upper_torso},
+                    {name = "LowerTorso", part = parts.lower_torso},
+                    {name = "LeftUpperArm", part = parts.left_upper_arm},
+                    {name = "LeftLowerArm", part = parts.left_lower_arm},
+                    {name = "LeftHand", part = parts.left_hand},
+                    {name = "RightUpperArm", part = parts.right_upper_arm},
+                    {name = "RightLowerArm", part = parts.right_lower_arm},
+                    {name = "RightHand", part = parts.right_hand},
+                    {name = "LeftUpperLeg", part = parts.left_upper_leg},
+                    {name = "LeftLowerLeg", part = parts.left_lower_leg},
+                    {name = "LeftFoot", part = parts.left_foot},
+                    {name = "RightUpperLeg", part = parts.right_upper_leg},
+                    {name = "RightLowerLeg", part = parts.right_lower_leg},
+                    {name = "RightFoot", part = parts.right_foot}
+                }
+            }
+
+            local address = tostring(character)
+            data.root_part = root_part
+
+            cache.players[address] = data
+            add_model_data(model_data, address)
+        end
     end
 end
 
@@ -1015,78 +547,15 @@ local function update()
         for index, player in cache.players do
             local character = player.character
             local root_part = player.root_part
-            if character ~= local_character and root_part and isdescendantof(root_part, workspace) then
-                if not player.real_name then
-                    local real_name = get_real_name(root_part)
-                    if real_name ~= 'Player' then
-                        player.real_name = true
-                        remove_model_data(index)
-
-                        local parts = player.parts
-                        local model_data = {
-                            Username = real_name,
-                            Displayname = real_name,
-                            Userid = 0,
-                            Character = player.character,
-                            PrimaryPart = root_part,
-                            Humanoid = root_part,
-                            Head = parts.head,
-                            Torso = parts.upper_torso,
-                            LeftArm = parts.left_upper_arm,
-                            LeftLeg = parts.left_upper_leg,
-                            RightArm = parts.right_upper_arm,
-                            RightLeg = parts.right_upper_leg,
-                            BodyHeightScale = 1,
-                            RigType = 1,
-                            Whitelisted = false,
-                            Archenemies = false,
-                            Aimbot_Part = parts.head,
-                            Aimbot_TP_Part = parts.head,
-                            Triggerbot_Part = parts.head,
-                            Health = 100,
-                            MaxHealth = 100,
-                            body_parts_data = {
-                                {name = "LowerTorso", part = parts.lower_torso},
-                                {name = "LeftUpperArm", part = parts.left_upper_arm},
-                                {name = "LeftLowerArm", part = parts.left_hand},
-                                {name = "RightUpperArm", part = parts.right_upper_arm},
-                                {name = "RightLowerArm", part = parts.right_hand},
-                                {name = "LeftUpperLeg", part = parts.left_upper_leg},
-                                {name = "LeftLowerLeg", part = parts.left_foot},
-                                {name = "RightUpperLeg", part = parts.right_upper_leg},
-                                {name = "RightLowerLeg", part = parts.right_foot}
-                            },
-                            full_body_data = {
-                                {name = 'Head', part = parts.head},
-                                {name = "UpperTorso", part = parts.upper_torso},
-                                {name = "LowerTorso", part = parts.lower_torso},
-                                {name = "LeftUpperArm", part = parts.left_upper_arm},
-                                {name = "LeftLowerArm", part = parts.left_lower_arm},
-                                {name = "LeftHand", part = parts.left_hand},
-                                {name = "RightUpperArm", part = parts.right_upper_arm},
-                                {name = "RightLowerArm", part = parts.right_lower_arm},
-                                {name = "RightHand", part = parts.right_hand},
-                                {name = "LeftUpperLeg", part = parts.left_upper_leg},
-                                {name = "LeftLowerLeg", part = parts.left_lower_leg},
-                                {name = "LeftFoot", part = parts.left_foot},
-                                {name = "RightUpperLeg", part = parts.right_upper_leg},
-                                {name = "RightLowerLeg", part = parts.right_lower_leg},
-                                {name = "RightFoot", part = parts.right_foot}
-                            }
-                        }
-                        
-                        add_model_data(model_data, index)
-                    end
-                end
-            else
-                remove_model_data(index)
+            if not character ~= local_character or not root_part or not isdescendantof(root_part, characters) then
                 cache.players[index] = nil
+                remove_model_data(index)
             end
         end
 
         for index, zombie in cache.zombies do
             local root_part = zombie.root_part
-            if not flags['zombies'] or not root_part or not isdescendantof(root_part, workspace) then
+            if not flags['zombies'] or not root_part or not isdescendantof(root_part, zombies) then
                 remove_model_data(index)
                 cache.zombies[index] = nil
             end
@@ -1095,35 +564,35 @@ local function update()
         for index, drop in cache.drops do
             local real = drop.drop
             if drop.fake then
-                if not isdescendantof(real, workspace) then
+                if not isdescendantof(real, drops) then
                     cache.drops[index] = nil
-                    continue
                 end
+                continue
             end
 
             if real then
-                if not isdescendantof(real, workspace) then
-                    remove_model_data(index)
+                if not isdescendantof(real, drops) then
                     cache.drops[index] = nil
+                    remove_model_data(index)
                 end
 
                 local class = drop.class
                 if class then
                     if class == 'ammo' then
                         if not flags['items_ammo'] then
-                            remove_model_data(index)
                             cache.drops[index] = nil
+                            remove_model_data(index)
                         end
                     else
                         if not flags['items_repair_kits'] then
-                            remove_model_data(index)
                             cache.drops[index] = nil
+                            remove_model_data(index)
                         end
                     end
                 else
                     if not flags['items_weapons'] then
-                        remove_model_data(index)
                         cache.drops[index] = nil
+                        remove_model_data(index)
                     end
                 end
             end
@@ -1133,8 +602,8 @@ local function update()
             local chassis = vehicle.chassis
             if chassis then
                 if not flags['vehicles'] or not isdescendantof(chassis, workspace) then
-                    remove_model_data(index)
                     cache.vehicles[index] = nil
+                    remove_model_data(index)
                 end
             end
         end
@@ -1142,16 +611,16 @@ local function update()
         for index, player_bag in cache.player_bags do
             local root_part = player_bag.root_part
             if not flags['player_bags'] or not root_part or not isdescendantof(root_part, workspace) then
-                remove_model_data(index)
                 cache.player_bags[index] = nil
+                remove_model_data(index)
             end
         end
 
         for index, player_bag in cache.zombie_bags do
             local root_part = player_bag.root_part
             if not flags['zombie_bags'] or not root_part or not isdescendantof(root_part, workspace) then
-                remove_model_data(index)
                 cache.zombie_bags[index] = nil
+                remove_model_data(index)
             end
         end
 
