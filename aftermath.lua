@@ -393,6 +393,7 @@ local function add_zombie(character)
                         if name then
                             special = true
                             special_name = name
+                            break
                         end
                     end
                 end
@@ -581,7 +582,7 @@ local function update()
                 remove_model_data(index)
                 cache.zombies[index] = nil
             end
-            
+
             if not flags['zombies'] or not root_part or not isdescendantof(root_part, zombies) then
                 remove_model_data(index)
                 cache.zombies[index] = nil
