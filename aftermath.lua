@@ -77,7 +77,7 @@ local paths = {
     {name = 'MK4', path = {'Handle', 'Safety'}},
     {name = 'TEC9', path = {'MovingParts', '9mm', 'Part6'}},
 
-    {name = 'Uzi', path = {'Static', 'Meshes', 'uzi_better_as_fbx_uzi.001'}},
+    {name = 'Uzi', path = {'Static', 'Meshes/uzi_better_as_fbx_uzi.001'}},
     {name = 'MP5', path = {'ChargingHandle', 'MP51'}},
     {name = 'P90', path = {'SlideDraw'}},
     {name = 'UMP45', path = {'Gun'}},
@@ -95,6 +95,7 @@ local paths = {
     {name = 'Famas', path = {'Meshes/Famas_FamasRBX.001'}},
     {name = 'G36k', path = {'hkey_lp001'}},
 
+    {name = 'SKS', path = {'Static', 'Wood'}},
     {name = 'M110k', path = {'Static', 'Sights'}},
     {name = 'MRAD', path = {'Bolt', 'Bolt'}},
     {name = 'AWM', path = {'Stand'}},
@@ -298,7 +299,6 @@ local function add_player(character)
     if root_part then
         local name = get_real_name(root_part)
         if name ~= 'Player' then
-            print(name)
             local parts = {
                 head = findfirstchild(character, 'Head'),
                 upper_torso = findfirstchild(character, 'UpperTorso'),
