@@ -3,6 +3,7 @@ local window = library:window({name = 'Aftermath - End to open/close', size = {3
     local settings = window:page({name = 'Settings'}); do
         local zombies, items = settings:multi_section({side = 'Left', size = {1, 0, 1, 0}, tabs = {'Zombies', 'Items'}}); do
             zombies:toggle({name = 'Enabled', flag = 'zombies'})
+            zombies:toggle({name = 'Only Special', flag = 'zombies_special'})
             zombies:toggle({name = 'Whitelisted', flag = 'zombies_whitelisted'})
 
             items:toggle({name = 'Ammo', flag = 'items_ammo'})
@@ -135,6 +136,8 @@ local cache = {
 }
 
 local meshes = {
+    ['rbxassetid://17661257035'] = 'Chinese Zombie',
+    ['rbxassetid://11613771301'] = 'Tactical Zombie',
     ['rbxassetid://10058182223'] = 'Weapon Repair Kit',
     ['rbxassetid://8838686715'] = 'Rem .223',
     ['rbxassetid://16828714196'] = '.22 LR',
@@ -274,18 +277,13 @@ local function add_drop(drop)
                         add_item_data(drop_string, part, weapon.name)
                         return
                     end
-                else
+                elseif not findfirstchild(drop, 'Main') then
                     cache.drops[drop_string] = {
                         fake = true,
                         drop = drop
                     }
                 end
             end
-        else
-            cache.drops[drop_string] = {
-                fake = true,
-                drop = drop
-            }
         end
     end
 end
@@ -383,7 +381,29 @@ local function add_zombie(character)
     local root_part = findfirstchild(character, 'HumanoidRootPart')
 
     if head and root_part then
-        local name = 'Zombie ' .. math.random(0, 999)
+        local special = false
+        local special_name = 'Zombie'
+
+        local equipment = findfirstchild(character, 'Equipment')
+        if equipment then
+            for _, model in getchildren(equipment) do
+                for _, meshpart in getchildren(model) do
+                    if getclassname(meshpart) == 'MeshPart' then
+                        local name = meshes[getmeshid(meshpart)]
+                        if name then
+                            special = true
+                            special_name = name
+                        end
+                    end
+                end
+            end
+        end
+
+        if flags['zombies_special'] and not special then
+            return
+        end
+
+        local name = special and special_name or 'Zombie ' .. math.random(0, 999)
         local torso = findfirstchild(character, 'Torso')
         local left_arm = findfirstchild(character, 'Left Arm')
         local left_leg = findfirstchild(character, 'Left Leg')
@@ -442,7 +462,7 @@ local function add_zombie(character)
             }
         }
 
-        cache.zombies[tostring(character)] = {root_part = root_part}
+        cache.zombies[tostring(character)] = {special = special, root_part = root_part}
         add_model_data(data, tostring(character))
     end
 end
@@ -555,7 +575,13 @@ local function update()
         end
 
         for index, zombie in cache.zombies do
+            local special = zombie.special
             local root_part = zombie.root_part
+            if flags['zombies_special'] and not special then
+                remove_model_data(index)
+                cache.zombies[index] = nil
+            end
+            
             if not flags['zombies'] or not root_part or not isdescendantof(root_part, zombies) then
                 remove_model_data(index)
                 cache.zombies[index] = nil
