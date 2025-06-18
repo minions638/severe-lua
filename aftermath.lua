@@ -49,11 +49,6 @@ local window = library:window({name = 'Aftermath - End to open/close', size = {3
     end
 end
 
-local meshid = tonumber(httpget('https://raw.githubusercontent.com/minions638/severe-lua/refs/heads/main/meshid'))
-local getmeshid = function(meshpart)
-    return getmemoryvalue(meshpart, meshid, 'string')
-end
-
 local players = findservice(Game, 'Players')
 local workspace = findservice(Game, 'Workspace')
 
