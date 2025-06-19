@@ -7,7 +7,8 @@ local window = library:window({name = 'Aftermath - End to open/close', size = {3
             zombies:toggle({name = 'Whitelisted', flag = 'zombies_whitelisted'})
 
             items:toggle({name = 'Ammo', flag = 'items_ammo'})
-            items:toggle({name = 'Weapons', unsafe = true, flag = 'items_weapons'})
+            items:toggle({name = 'Weapons', flag = 'items_weapons'})
+            items:toggle({name = 'Medical', flag = 'items_medical'})
             items:toggle({name = 'Repair Kits', flag = 'items_repair_kits'})
         end
 
@@ -93,7 +94,7 @@ local paths = {
 
     {name = 'SKS', path = {'Static', 'Wood'}},
     {name = 'M110k', path = {'Static', 'Sights'}},
-    {name = 'MRAD', path = {'Bolt', 'Bolt'}},
+    {name = 'MRAD', path = {'Misc', 'Meshes/Rifle_sbg_precision_rifle_01_buttstock.001'}},
     {name = 'AWM', path = {'Stand'}},
     {name = 'M82A1', path = {'pad_low'}},
     {name = 'SVD', path = {'MagBullet'}},
@@ -115,7 +116,7 @@ local paths = {
 
     {name = 'Makeshift Bow', path = {'Bow', 'bow_mid'}},
     {name = 'Recurve Bow', path = {'Bow', 'Bow'}},
-    {name = 'T13 Crossbow', path = {'Arrow'}},
+    {name = 'T13 Crossbow', path = {'CrossbowExport'}},
     {name = '10/22 Takedown', path = {'GunParts'}},
 
     {name = 'Wrench', path = {'Wrench'}}
@@ -133,16 +134,28 @@ local cache = {
 local meshes = {
     ['rbxassetid://17661257035'] = 'Chinese Zombie',
     ['rbxassetid://11613771301'] = 'Tactical Zombie',
-    ['rbxassetid://10058182223'] = 'Weapon Repair Kit',
-    ['rbxassetid://8838686715'] = 'Rem .223',
-    ['rbxassetid://16828714196'] = '.22 LR',
-    ['rbxassetid://7951764278'] = '.308 Win',
-    ['rbxassetid://6068549937'] = '.44 Magnum',
-    ['rbxassetid://6068551481'] = '9MM Pa.',
-    ['rbxassetid://6068551083'] = '.45 ACP',
-    ['rbxassetid://6068551303'] = '12 Gauge',
-    ['rbxassetid://8905916965'] = '.50 BMG',
-    ['rbxassetid://6068550744'] = '7.62 Soviet'
+
+    ['rbxassetid://8396080506'] = {'Antibiotics', 'medical'},
+    ['rbxassetid://10335143460'] = {'Bandage', 'medical'},
+    ['rbxassetid://1307827852'] = {'Healing Salve', 'medical'},
+    ['rbxassetid://11614286909'] = {'Dressed Bandage', 'medical'},
+    ['rbxassetid://6684852280'] = {'Medkit', 'medical'},
+    ['rbxassetid://8838686703'] = {'Large Medkit', 'medical'},
+    ['rbxassetid://8838678182'] = {'Leg Splint', 'medical'},
+    ['rbxassetid://74587642250157'] = {'Sam Splint', 'medical'},
+    ['rbxassetid://14245480179'] = {'Tourniquet', 'medical'},
+
+    ['rbxassetid://10058182223'] = {'Weapon Repair Kit', 'repair_kit'},
+
+    ['rbxassetid://8838686715'] = {'Rem .223', 'ammo'},
+    ['rbxassetid://16828714196'] = {'.22 LR', 'ammo'},
+    ['rbxassetid://7951764278'] = {'.308 Win', 'ammo'},
+    ['rbxassetid://6068549937'] = {'.44 Magnum', 'ammo'},
+    ['rbxassetid://6068551481'] = {'9MM Pa.', 'ammo'},
+    ['rbxassetid://6068551083'] = {'.45 ACP', 'ammo'},
+    ['rbxassetid://6068551303'] = {'12 Gauge', 'ammo'},
+    ['rbxassetid://8905916965'] = {'.50 BMG', 'ammo'},
+    ['rbxassetid://6068550744'] = {'7.62 Soviet', 'ammo'}
 }
 
 local function get_magnitude(a, b)
@@ -218,68 +231,85 @@ end
 local function add_drop(drop)
     local drop_string = tostring(drop)
     if getclassname(drop) == 'Model' then
-        if flags['items_ammo'] or flags['items_repair_kits'] then
-            local main = findfirstchild(drop, 'Main')
-            if main and getclassname(main) == 'MeshPart' then
-                local meshid = getmeshid(main)
-                local name = meshes[meshid]
+        local main = findfirstchild(drop, 'Main') or findfirstchild(drop, 'main') or findfirstchild(drop, 'bondage')
+        if main and getclassname(main) == 'MeshPart' then
+            local meshid = getmeshid(main)
+            local found = meshes[meshid]
 
-                if name then
-                    if name ~= 'Weapon Repair Kit' then
-                        if flags['items_ammo'] then
-                            cache.drops[drop_string] = {
-                                drop = drop,
-                                class = 'ammo'
-                            }
-                            add_item_data(drop_string, main, name)
-                        end
-                    elseif flags['items_repair_kits'] then
+            if found then
+                local class = found[2]
+                if class == 'medical' then
+                    if flags['items_medical'] then
+                        cache.drops[drop_string] = {
+                            drop = drop,
+                            class = 'medical'
+                        }
+                        add_item_data(drop_string, main, found[1])
+                    end
+                elseif class == 'ammo' then
+                    if flags['items_ammo'] then
+                        cache.drops[drop_string] = {
+                            drop = drop,
+                            class = 'ammo'
+                        }
+                        add_item_data(drop_string, main, found[1])
+                    end
+                elseif class == 'repair_kit' then
+                    if flags['items_repair_kits'] then
                         cache.drops[drop_string] = {
                             drop = drop,
                             class = 'repair_kit'
                         }
-                        add_item_data(drop_string, main, name)
+                        add_item_data(drop_string, main, found[1])
                     end
-                    return
                 end
+
+                return
             end
         end
 
         if flags['items_weapons'] then
             local part = findfirstchildofclass(drop, 'Part') or findfirstchildofclass(drop, 'MeshPart')
-            if not part then
-                return
-            end
+            if part then
+                for _, weapon in paths do
+                    local path = weapon.path
+                    local depth = drop
 
-            for _, weapon in paths do
-                local path = weapon.path
-                local depth = drop
-
-                for _, child in path do
-                    local found = findfirstchild(depth, child)
-                    if found then
-                        depth = found
-                    else
-                        break
+                    for _, _child in path do
+                        local found = findfirstchild(depth, _child)
+                        if found then
+                            depth = found
+                        else
+                            break
+                        end
                     end
-                end
 
-                if depth ~= drop then
                     if getname(depth) == path[#path] then
                         cache.drops[drop_string] = {
                             drop = drop
                         }
                         add_item_data(drop_string, part, weapon.name)
+
                         return
                     end
-                elseif not findfirstchild(drop, 'Main') then
-                    cache.drops[drop_string] = {
-                        fake = true,
-                        drop = drop
-                    }
                 end
+
+                cache.drops[drop_string] = {
+                    fake = true,
+                    drop = drop
+                }
+            elseif not main then
+                cache.drops[drop_string] = {
+                    fake = true,
+                    drop = drop
+                }
             end
         end
+    else
+        cache.drops[drop_string] = {
+            fake = true,
+            drop = drop
+        }
     end
 end
 
@@ -597,16 +627,22 @@ local function update()
                 if not isdescendantof(real, drops) then
                     cache.drops[index] = nil
                     remove_model_data(index)
+                    continue
                 end
 
                 local class = drop.class
                 if class then
-                    if class == 'ammo' then
+                    if class == 'medical' then
+                         if not flags['items_medical'] then
+                            cache.drops[index] = nil
+                            remove_model_data(index)
+                        end
+                    elseif class == 'ammo' then
                         if not flags['items_ammo'] then
                             cache.drops[index] = nil
                             remove_model_data(index)
                         end
-                    else
+                    elseif class == 'repair_kit' then
                         if not flags['items_repair_kits'] then
                             cache.drops[index] = nil
                             remove_model_data(index)
