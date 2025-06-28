@@ -185,6 +185,7 @@ local create = function(class, properties)
             elseif key == 'Remove' then
                 return function()
                     DesOB(instance)
+                    drawings[#drawings+1] = nil
                 end
             else
                 return RetOB(instance, key)
