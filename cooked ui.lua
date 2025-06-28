@@ -1217,4 +1217,4 @@ spawn(function()
     end
 end)
 
-return library, library.flags
+return library, library.flags, create
