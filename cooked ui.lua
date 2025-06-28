@@ -35,7 +35,8 @@ local create = function(class, properties)
         return
     end
 
-    local zindex = properties.zIndex or (#drawings + 1)
+    local index = #drawings + 1
+    local zindex = properties.zIndex or index
     local instance = CrtOB(class)
 
     local parent = properties.Parent or nil
@@ -185,7 +186,7 @@ local create = function(class, properties)
             elseif key == 'Remove' then
                 return function()
                     DesOB(instance)
-                    drawings[#drawings+1] = nil
+                    drawings[index] = nil
                 end
             else
                 return RetOB(instance, key)
@@ -228,7 +229,7 @@ local create = function(class, properties)
         _children[#_children+1] = meta
     end
 
-    drawings[#drawings + 1] = {
+    drawings[index] = {
         meta = meta,
         class = class,
         pressed = false,
