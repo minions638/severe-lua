@@ -627,7 +627,6 @@ library.page = function(self, cfg)
             page_drawings.tab_gradient.Visible = this_page and true or false
             page_drawings.tab_text.Color = this_page and {255, 255, 255} or {170, 170, 170}
         end
-        count = count + 1
     end
 
     tab_fill.ClickBegan:Connect(function()
