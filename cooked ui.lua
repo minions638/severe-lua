@@ -610,12 +610,8 @@ library.page = function(self, cfg)
         Parent = actual_page
     })
     page.drawings.right = right
-
-    local count = 0
+    
     page.select = function()
-        if count ~= 0 then
-            return
-        end
         for _, _page in self.pages do
             local this_page = _page == page
 
