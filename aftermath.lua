@@ -1,25 +1,31 @@
-local library, flags = loadstring(httpget('https://raw.githubusercontent.com/minions638/severe-lua/refs/heads/main/cooked%20ui.lua'))()
-local window = library:window({name = 'Aftermath - End to open/close', size = {350, 300}}); do
-    local settings = window:page({name = 'Settings'}); do
-        local zombies, items = settings:multi_section({side = 'Left', size = {1, 0, 1, 0}, tabs = {'Zombies', 'Items'}}); do
+local library, flags, create = loadstring(httpget('https://raw.githubusercontent.com/minions638/severe-lua/refs/heads/main/cooked%20ui.lua'))()
+local window = library:window({name = 'Aftermath (End key toggles menu)', size = {350, 300}}); do
+    local settings = window:page({name = 'Options'}); do
+        local zombies = settings:section({side = 'Left', size = {1, 0, 0, 75}, name = 'Zombies'}); do
             zombies:toggle({name = 'Enabled', flag = 'zombies'})
             zombies:toggle({name = 'Only Special', flag = 'zombies_special'})
             zombies:toggle({name = 'Whitelisted', flag = 'zombies_whitelisted'})
+        end
 
+        local items = settings:section({side = 'Left', size = {1, 0, 0, 91}, name = 'Items'}); do
             items:toggle({name = 'Ammo', flag = 'items_ammo'})
             items:toggle({name = 'Weapons', flag = 'items_weapons'})
             items:toggle({name = 'Medical', flag = 'items_medical'})
             items:toggle({name = 'Repair Kits', flag = 'items_repair_kits'})
         end
 
-        local vehicles, bags = settings:multi_section({side = 'Right', size = {1, 0, 1, -85}, tabs = {'Vehicles', 'Bags'}}); do
-            vehicles:toggle({name = 'Enabled', flag = 'vehicles'})
+        local misc = settings:section({side = 'Right', size = {1, 0, 1, 0}, name = 'Misc.'}); do
+            misc:toggle({name = 'Vehicles', flag = 'vehicles'})
 
-            bags:toggle({name = 'Player Bags', flag = 'player_bags'})
-            bags:toggle({name = 'Zombie Bags', flag = 'zombie_bags'})
+            misc:toggle({name = 'Player Bags', flag = 'player_bags'})
+            misc:toggle({name = 'Zombie Bags', flag = 'zombie_bags'})
+
+            misc:toggle({name = 'Weapon Viewer', flag = 'weapon_viewer'})
         end
+    end
 
-        local configurations = settings:section({side = 'Right', name = 'Configurations', size = {1, 0, 0, 79}}); do
+    local configs = window:page({name = 'Other'}); do
+        local configurations = configs:section({side = 'Left', name = 'Configs', size = {2, 6, 0, 79}}); do
             configurations:button({name = 'Save Config', callback = function()
                 local states = {}
                 for k in library.elements do
@@ -158,6 +164,198 @@ local meshes = {
     ['rbxassetid://6068550744'] = {'7.62 Soviet', 'ammo'}
 }
 
+local viewer = {}; do
+    viewer.player = nil
+
+    local last_pos = {6, 6}
+    viewer.main = create('Square', {
+        Color = {0, 0, 0},
+        Size = {100, 50},
+        Position = {10000, 10000},
+        Thickness = 1,
+        Transparency = 1,
+        Visible = true,
+        Filled = true
+    })
+
+    local dragging = false
+    local drag_pos = nil
+
+    do -- window dragging
+        viewer.main.ClickBegan:Connect(function()
+            dragging = true
+            drag_pos = getmouseposition()
+        end)
+
+        viewer.main.ClickEnded:Connect(function()
+            dragging = false
+        end)
+
+        spawn(function()
+            while wait(1 / 120) do
+                if dragging then
+                    local mousepos = getmouseposition()
+                    local diff = {x = mousepos.x - drag_pos.x, y = mousepos.y - drag_pos.y}
+                    drag_pos = mousepos
+
+                    last_pos = {viewer.main.AbsPos.x + diff.x, viewer.main.AbsPos.y + diff.y}
+                    viewer.main.Position = {viewer.main.AbsPos.x + diff.x, viewer.main.AbsPos.y + diff.y}
+
+                    for _, entry in library.drawings do
+                        entry.meta:Refresh()
+                    end
+                end
+            end
+        end)
+    end
+
+    local inline = create('Square', {
+        Color = {20, 20, 20},
+        Size = {1, -2, 1, -2},
+        Position = {0, 1, 0, 1},
+        Thickness = 1,
+        Transparency = 1,
+        Visible = true,
+        Filled = true,
+        Parent = viewer.main
+    })
+
+    local window_accent = create('Square', {
+        Color = library.accent,
+        Size = {1, -2, 0, 2},
+        Position = {0, 1, 0, 1},
+        Thickness = 1,
+        Transparency = 1,
+        Visible = true,
+        Filled = true,
+        Parent = inline
+    })
+
+    local window_accent_dark = create('Square', {
+        Color = {library.accent[1] - 40, library.accent[2] - 40, library.accent[3] - 40},
+        Size = {1, 0, 0, 1},
+        Position = {0, 0, 0, 1},
+        Thickness = 1,
+        Transparency = 1,
+        Visible = true,
+        Filled = true,
+        Parent = window_accent
+    })
+
+    local title_gradient = create('Image', {
+        Url = 'https://raw.githubusercontent.com/minions638/severe-lua/refs/heads/main/images/title_gradient.png',
+        Color = {255, 255, 255},
+        Size = {1, -2, 0, 20},
+        Position = {0, 1, 0, 4},
+        Transparency = 1,
+        Visible = true,
+        Parent = inline
+    })
+
+    local window_contrast = create('Square', {
+        Color = {35, 35, 35},
+        Size = {1, -2, 1, -25},
+        Position = {0, 1, 0, 24},
+        Thickness = 1,
+        Transparency = 1,
+        Visible = true,
+        Filled = true,
+        Parent = inline
+    })
+
+    local window_title = create('Text', {
+        Color = {255, 255, 255},
+        Size = library.font.size,
+        Font = library.font.index,
+        Text = 'Placeholder',
+        Position = {0, 4, 0, 2},
+        Outline = true,
+        Visible = true,
+        Transparency = 1,
+        Parent = title_gradient
+    })
+
+    local past = {}
+    viewer.set = function(name, active, weapons)
+        if #weapons > 0 then
+            for _, v in past do
+                v:Remove()
+            end
+            past = {}
+
+            viewer.player = name
+            window_title.Text = name
+            viewer.main.Position = last_pos
+
+            local size = math.floor(window_title.TextBounds.x)
+
+            local offset = 0
+            if active then
+                offset = offset + 14
+                local text = create('Text', {
+                    Color = {255, 255, 255},
+                    Size = library.font.size,
+                    Font = library.font.index,
+                    Text = 'Active: ' .. active,
+                    Position = {0, 4, 0, 2 + offset},
+                    Outline = true,
+                    Visible = true,
+                    Transparency = 1,
+                    Parent = title_gradient
+                })
+
+                local floor_bounds = math.floor(text.TextBounds.x)
+                if floor_bounds > size then
+                    size = floor_bounds
+                end
+
+                past[#past+1] = text
+            end
+
+            for _, weapon in weapons do
+                offset = offset + 14
+                local text = create('Text', {
+                    Color = {255, 255, 255},
+                    Size = library.font.size,
+                    Font = library.font.index,
+                    Text = 'Inactive: ' .. weapon,
+                    Position = {0, 4, 0, 2 + offset},
+                    Outline = true,
+                    Visible = true,
+                    Transparency = 1,
+                    Parent = title_gradient
+                })
+
+                local floor_bounds = math.floor(text.TextBounds.x)
+                if floor_bounds > size then
+                    size = floor_bounds
+                end
+
+                past[#past+1] = text
+            end
+
+            viewer.main.Size = {size + 14, active and 32 + (14 * #weapons) + 7 or 18 + (14 * #weapons) + 7}
+
+            for _, drawing in library.drawings do
+                drawing.meta:Refresh()
+            end
+        else
+            dragging = false
+            viewer.main.Position = {10000, 10000}
+            viewer.player = nil
+
+            for _, v in past do
+                v:Remove()
+            end
+            past = {}
+
+            for _, drawing in library.drawings do
+                drawing.meta:Refresh()
+            end
+        end
+    end
+end
+
 local function get_magnitude(a, b)
     local dx, dy = a.x - b.x, a.y - b.y
     local dz = (a.z and b.z) and (a.z - b.z) or nil
@@ -198,6 +396,46 @@ local function get_real_name(root_part)
     else
         return 'Player'
     end
+end
+
+local function get_weapons(character)
+    local active, weapons = nil, {}
+
+    local solve = function(model)
+        for _, weapon in paths do
+            local path = weapon.path
+            local depth = model
+
+            for _, child in path do
+                local found = findfirstchild(depth, child)
+                if found then
+                    depth = found
+                else
+                    break
+                end
+            end
+
+            if getname(depth) == path[#path] then
+                return weapon.name
+            end
+        end
+    end
+
+    for _, child in getchildren(character) do
+        if getname(child) == 'WorldModel' then
+            local name = solve(child)
+            if name then
+                active = name
+            end
+        elseif getname(child) == 'WorldModelInactive' then
+            local name = solve(child)
+            if name then
+                weapons[#weapons+1] = name
+            end
+        end
+    end
+
+    return active, weapons
 end
 
 local function add_item_data(index, part, name)
@@ -394,6 +632,8 @@ local function add_player(character)
 
             local address = tostring(character)
             data.root_part = root_part
+            data.parts = parts
+            data.name = name
 
             cache.players[address] = data
             add_model_data(model_data, address)
@@ -585,7 +825,39 @@ local function update_cache()
             end
         end
 
-        wait(0.25)
+        if flags['weapon_viewer'] then
+            local closest, dist = nil, 1250
+            local mouse_pos = getmouseposition()
+
+            for _, player in cache.players do
+                local head = player.parts.head
+                local position = getposition(head)
+                local screenpoint = worldtoscreenpoint(position)
+
+                local distance = get_magnitude(mouse_pos, screenpoint)
+                if distance < dist then
+                    dist = distance
+                    closest = player
+                end
+            end
+
+            if closest then
+                if closest.name ~= viewer.player then
+                    local active, weapons = get_weapons(closest.character)
+                    viewer.set(closest.name, active, weapons)
+                end
+            else
+                if viewer.player then
+                    viewer.set('', '', {})
+                end
+            end
+        else
+            if viewer.player then
+                viewer.set('', '', {})
+            end
+        end
+
+        wait(0.1)
     end
 end
 
