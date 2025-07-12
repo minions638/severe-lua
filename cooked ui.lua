@@ -1,6 +1,22 @@
 -- unfinished, barely works
 -- do not use this!!
 
+local CrtOB = function(a)
+    return Drawing.new(a)
+end
+
+local SetOB = function(a, b, c)
+    a[b] = c
+end
+
+local RetOB = function(a, b)
+    return a[b]
+end
+
+local DesOB = function(a)
+    a:Remove()
+end
+
 local floor = math.floor
 local random = math.random
 local isleftpressed = isleftpressed
@@ -33,7 +49,7 @@ local create = function(class, properties)
 
     local index = #drawings + 1
     local zindex = properties.zIndex or index
-    local instance = Drawing.new(class)
+    local instance = CrtOB(class)
 
     local parent = properties.Parent or nil
     local children = {}
@@ -54,13 +70,13 @@ local create = function(class, properties)
                 floor(parent.AbsSize.x * size_udim2.scale[1] + size_udim2.offset[1]),
                 floor(parent.AbsSize.y * size_udim2.scale[2] + size_udim2.offset[2])
             }
-            instance.Size = floored
+            SetOB(instance, 'Size', floored)
         else
             local floored = {
                 floor(size_udim2.offset[1]),
                 floor(size_udim2.offset[2])
             }
-            instance.Size = floored
+            SetOB(instance, 'Size', floored)
         end
     end
 
@@ -70,20 +86,20 @@ local create = function(class, properties)
                 floor(parent.AbsPos.x + (parent.AbsSize.x * position_udim2.scale[1] + position_udim2.offset[1])),
                 floor(parent.AbsPos.y + (parent.AbsSize.y * position_udim2.scale[2] + position_udim2.offset[2]))
             }
-            instance.Position = floored
+            SetOB(instance, 'Position', floored)
         else
             local floored = {
                 floor(position_udim2.offset[1]),
                 floor(position_udim2.offset[2])
             }
-            instance.Position = floored
+            SetOB(instance, 'Position', floored)
         end
     end
 
     for property, value in properties do
         if property == 'Size' then
             if class == 'Text' then
-                instance.Size = value
+                SetOB(instance, 'Size', value)
             else
                 if value[3] then
                     size_udim2.scale = {value[1], value[3]}
@@ -106,7 +122,7 @@ local create = function(class, properties)
                 update_position()
             end
         elseif property ~= 'Parent' then
-            instance[property] = value
+            SetOB(instance, property, value)
         end
     end
 
@@ -118,9 +134,9 @@ local create = function(class, properties)
     local meta = setmetatable({}, {
         __index = function(self, key)
             if key == 'AbsSize' then
-                return instance.Size
+                return RetOB(instance, 'Size')
             elseif key == 'AbsPos' then
-                return instance.Position
+                return RetOB(instance, 'Position')
             elseif key == 'Size' then
                 return size_udim2
             elseif key == 'Position' then
@@ -181,18 +197,18 @@ local create = function(class, properties)
                 return v
             elseif key == 'Remove' then
                 return function()
-                    instance:Remove()
+                    DesOB(instance)
                     drawings[index] = nil
                 end
             else
-                return instance[key]
+                return RetOB(instance, key)
             end
         end,
 
         __newindex = function(self, key, value)
             if key == 'Size' then
                 if class == 'Text' then
-                    instance.Size = value
+                    SetOB(instance, 'Size', value)
                 else
                     if value[3] then
                         size_udim2.scale = {value[1], value[3]}
@@ -215,7 +231,7 @@ local create = function(class, properties)
                     update_position()
                 end
             elseif key ~= 'Parent' then
-                instance[key] = value
+                SetOB(instance, key, value)
             end
         end
     })
@@ -271,9 +287,9 @@ spawn(function() -- click handler
             local class = entry.class
             local instance = entry.instance
 
-            if class ~= 'Text' and instance.Visible and meta.CountConnections > 0 then
-                local size = instance.Size
-                local position = instance.Position
+            if class ~= 'Text' and RetOB(instance, 'Visible') and meta.CountConnections > 0 then
+                local size = RetOB(instance, 'Size')
+                local position = RetOB(instance, 'Position')
 
                 if size and position and mouse_position then
                     local inside = mouse_position.x >= position.x and mouse_position.x <= position.x + size.x and mouse_position.y >= position.y and mouse_position.y <= position.y + size.y
@@ -281,7 +297,7 @@ spawn(function() -- click handler
                         continue
                     end
 
-                    local zindex = instance.zIndex
+                    local zindex = RetOB(instance, 'zIndex')
                     if zindex >= topmost_zindex then
                         topmost_zindex = zindex
                         topmost_entry = entry
