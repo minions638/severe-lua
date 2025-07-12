@@ -1,6 +1,10 @@
 -- unfinished, barely works
 -- do not use this!!
 
+local CrtOB = CrtOB
+local SetOB = SetOB
+local RetOB = RetOB
+local DesOB = DesOB
 local floor = math.floor
 local random = math.random
 local isleftpressed = isleftpressed
