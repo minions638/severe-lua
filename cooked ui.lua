@@ -1,22 +1,6 @@
 -- unfinished, barely works
 -- do not use this!!
 
-local CrtOB = function(a)
-    return Drawing.new(a)
-end
-
-local SetOB = function(a, b, c)
-    a[b] = c
-end
-
-local RetOB = function(a, b)
-    return a[b]
-end
-
-local DesOB = function(a)
-    a:Remove()
-end
-
 local floor = math.floor
 local random = math.random
 local isleftpressed = isleftpressed
